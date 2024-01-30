@@ -6,6 +6,7 @@ require('dotenv').config()
 // file imports 
 require('./db.js')
 
+app.use(express.json())
 app.use('/auth', AuthRouter)
 
 app.listen(process.env.PORT, ()=>{
