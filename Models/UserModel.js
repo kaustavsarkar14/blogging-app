@@ -61,6 +61,17 @@ let User = class {
       }
     });
   }
+  static findUserWithId(userId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const user = await UserSchema.findOne({ _id: userId });
+        if(!user) reject("user not found")
+        resolve(user);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 };
 
 module.exports = User;
