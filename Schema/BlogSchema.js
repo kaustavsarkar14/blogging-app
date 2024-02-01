@@ -13,7 +13,7 @@ const blogSchema = new mongoose.Schema({
         maxLength: 200
     },
     creationDateAndTime : {
-        type : String,
+        type : Date,
         required : true
     },
     userId : {
