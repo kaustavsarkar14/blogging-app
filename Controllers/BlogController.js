@@ -13,9 +13,10 @@ const {
   deleteBlog,
 } = require("../Models/BlogModel");
 const User = require("../Models/UserModel");
+const rateLimit = require("../Middlewares/RateLimiting");
 const blogRouter = express.Router();
 
-blogRouter.post("/create-blog", async (req, res) => {
+blogRouter.post("/create-blog",rateLimit, async (req, res) => {
   const { title, textBody } = req.body;
   const userId = req.session.user._id;
   const creationDateAndTime = new Date();
