@@ -20,6 +20,11 @@ const blogSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,        
         required : true,
         ref: 'user'
+    },
+    isDeleted : {
+        type: Boolean,
+        required : true,
+        default : false
     }
 })
 

@@ -22,7 +22,10 @@ const getAllBlogs = ({ followingUserIds, SKIP, LIMIT }) => {
       let blogs = [];
       const followingUsersBlogs = await BlogSchema.aggregate([
         {
-          $match: { userId: { $in: followingUserIds } },
+          $match: {
+            userId: { $in: followingUserIds },
+            isDeleted: { $ne: true },
+          },
         },
         {
           $sort: { creationDateAndTime: -1 },
@@ -37,7 +40,10 @@ const getAllBlogs = ({ followingUserIds, SKIP, LIMIT }) => {
         return resolve(followingUsersBlogs[0].data);
       const nonFollowingUsersBlogs = await BlogSchema.aggregate([
         {
-          $match: { userId: { $nin: followingUserIds } },
+          $match: {
+            userId: { $nin: followingUserIds },
+            isDeleted: { $ne: true },
+          },
         },
         {
           $sort: { creationDateAndTime: -1 },
@@ -51,7 +57,10 @@ const getAllBlogs = ({ followingUserIds, SKIP, LIMIT }) => {
           },
         },
       ]);
-      blogs = [...followingUsersBlogs[0].data, ...nonFollowingUsersBlogs[0].data];
+      blogs = [
+        ...followingUsersBlogs[0].data,
+        ...nonFollowingUsersBlogs[0].data,
+      ];
       resolve(blogs);
     } catch (error) {
       reject(error);
@@ -63,7 +72,7 @@ const getMyBlogs = ({ SKIP, LIMIT, userId }) => {
     try {
       const blogs = await BlogSchema.aggregate([
         {
-          $match: { userId },
+          $match: { userId,isDeleted:{$ne:true}  },
         },
         {
           $sort: { creationDateAndTime: -1 },
@@ -74,7 +83,7 @@ const getMyBlogs = ({ SKIP, LIMIT, userId }) => {
           },
         },
       ]);
-      resolve(blogs);
+      resolve(blogs[0].data);
     } catch (error) {
       reject(error);
     }
@@ -109,9 +118,13 @@ const editBlog = ({ newData, blogId }) => {
 const deleteBlog = (blogId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blogDb = await BlogSchema.findOneAndDelete({ _id: blogId });
+      const blogDb = await BlogSchema.findOneAndUpdate(
+        { _id: blogId },
+        { isDeleted: true }
+      );
       resolve(blogDb);
     } catch (error) {
+      console.log(error);
       reject(error);
     }
   });
