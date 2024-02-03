@@ -14,9 +14,9 @@ const {
 } = require("../Models/BlogModel");
 const User = require("../Models/UserModel");
 const rateLimit = require("../Middlewares/RateLimiting");
-const blogRouter = express.Router();
+const BlogRouter = express.Router();
 
-blogRouter.post("/create-blog",rateLimit, async (req, res) => {
+BlogRouter.post("/create-blog", rateLimit, async (req, res) => {
   const { title, textBody } = req.body;
   const userId = req.session.user._id;
   const creationDateAndTime = new Date();
@@ -39,7 +39,7 @@ blogRouter.post("/create-blog",rateLimit, async (req, res) => {
     return res.send({ status: 500, message: "database error", error });
   }
 });
-blogRouter.get("/get-blogs", async (req, res) => {
+BlogRouter.get("/get-blogs", async (req, res) => {
   const SKIP = Number(req.query.skip) || 0;
   const LIMIT = Number(req.query.limit) || 5;
 
@@ -51,7 +51,7 @@ blogRouter.get("/get-blogs", async (req, res) => {
     return res.send({ status: 500, message: "database error", error });
   }
 });
-blogRouter.get("/get-my-blogs", async (req, res) => {
+BlogRouter.get("/get-my-blogs", async (req, res) => {
   const SKIP = Number(req.query.skip) || 0;
   const LIMIT = Number(req.query.limit) || 5;
   const userId = req.session.user._id;
@@ -63,7 +63,7 @@ blogRouter.get("/get-my-blogs", async (req, res) => {
     return res.send({ status: 500, message: "database error", error });
   }
 });
-blogRouter.post("/edit", async (req, res) => {
+BlogRouter.post("/edit", rateLimit, async (req, res) => {
   const newData = req.body.data;
   const blogId = req.body.blogId;
   const userId = req.session.user._id;
@@ -98,7 +98,7 @@ blogRouter.post("/edit", async (req, res) => {
     return res.send({ status: 500, message: "database error", error });
   }
 });
-blogRouter.post("/delete", async (req, res) => {
+BlogRouter.post("/delete", rateLimit, async (req, res) => {
   const blogId = req.body.blogId;
   const userId = req.session.user._id;
   try {
@@ -116,4 +116,4 @@ blogRouter.post("/delete", async (req, res) => {
     res.send({ status: 500, message: "database error", error });
   }
 });
-module.exports = blogRouter;
+module.exports = BlogRouter;
