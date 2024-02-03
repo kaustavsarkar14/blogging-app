@@ -14,6 +14,7 @@ const {
 } = require("../Models/BlogModel");
 const User = require("../Models/UserModel");
 const rateLimit = require("../Middlewares/RateLimiting");
+const FollowSchema = require("../Schema/FollowSchema");
 const BlogRouter = express.Router();
 
 BlogRouter.post("/create-blog", rateLimit, async (req, res) => {
@@ -42,9 +43,12 @@ BlogRouter.post("/create-blog", rateLimit, async (req, res) => {
 BlogRouter.get("/get-blogs", async (req, res) => {
   const SKIP = Number(req.query.skip) || 0;
   const LIMIT = Number(req.query.limit) || 5;
-
+  const followerUserId = req.session.user._id;
   try {
-    const blogs = await getAllBlogs({ SKIP, LIMIT });
+    const followingUserIds = (await FollowSchema.find({ followerUserId })).map(
+      (followObj) => followObj.followingUserId
+    );
+    const blogs = await getAllBlogs({ followingUserIds, SKIP, LIMIT });
     return res.send({ status: 200, data: blogs });
   } catch (error) {
     console.log(error);

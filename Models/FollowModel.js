@@ -24,7 +24,6 @@ const followUser = ({ followerUserId, followingUserId }) => {
 };
 
 const followersList = ({ followingUserId, SKIP, LIMIT }) => {
-  console.log(followingUserId);
   return new Promise(async (resolve, reject) => {
     try {
       const followersIds = await (

@@ -16,10 +16,14 @@ const createBlog = ({ title, textBody, userId, creationDateAndTime }) => {
     }
   });
 };
-const getAllBlogs = ({ SKIP, LIMIT }) => {
+const getAllBlogs = ({ followingUserIds, SKIP, LIMIT }) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const blogs = await BlogSchema.aggregate([
+      let blogs = [];
+      const followingUsersBlogs = await BlogSchema.aggregate([
+        {
+          $match: { userId: { $in: followingUserIds } },
+        },
         {
           $sort: { creationDateAndTime: -1 },
         },
@@ -29,6 +33,25 @@ const getAllBlogs = ({ SKIP, LIMIT }) => {
           },
         },
       ]);
+      if (followingUsersBlogs[0].data.length == LIMIT)
+        return resolve(followingUsersBlogs[0].data);
+      const nonFollowingUsersBlogs = await BlogSchema.aggregate([
+        {
+          $match: { userId: { $nin: followingUserIds } },
+        },
+        {
+          $sort: { creationDateAndTime: -1 },
+        },
+        {
+          $facet: {
+            data: [
+              { $skip: SKIP },
+              { $limit: LIMIT - followingUsersBlogs[0].data.length },
+            ],
+          },
+        },
+      ]);
+      blogs = [...followingUsersBlogs[0].data, ...nonFollowingUsersBlogs[0].data];
       resolve(blogs);
     } catch (error) {
       reject(error);
